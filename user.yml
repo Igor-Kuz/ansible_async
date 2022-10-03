@@ -1,0 +1,25 @@
+---
+- name: user
+  hosts: demo
+  tasks:
+    - name: Preconfig block
+      block:
+        - name: Asinchronus_example
+          command: /bin/sleep 10
+          async: 120
+          poll: 0
+          register: sleep
+        - debug:
+            var: sleep 
+        - name: Echo
+          command: echo "Done"
+      become: true
+    - name: Check status
+      async_status:
+        jid: "{{ sleep.ansible_job_id }}"
+      register: job_result
+      until: job_result.finished
+      retries: 70
+      delay: 1
+      become: true
+        
